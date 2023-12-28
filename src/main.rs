@@ -33,12 +33,11 @@ fn main() {
         let ev = d.next_event(ReadFlag::NORMAL).map(|val| val.1);
         match ev {
             Ok(ev) => {
-                let key = Key::new(ev.value.try_into().unwrap());
+                // let key = Key::new(ev.value.try_into().unwrap());
                 let file = conf
                     .get("defines")
-                    .unwrap()
-                    .get(ev.value.to_string())
-                    .unwrap_or(&Value::String("".to_owned()))
+                    .and_then(|defines| defines.get(ev.value.to_string()))
+                    .map_or_else(|| Value::String("a.wav".to_owned()), |v| v.clone())
                     .to_string();
 
                 // if !file.is_empty() {
@@ -70,13 +69,14 @@ fn main() {
                             println!("key {} pressed {} ", key_pressed, key_file);
                             let dir = String::from("nk-cream/") + &key_file;
                             // let x = Command::new("aplay").arg(dir).output();
-                            let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-                            // Load a sound from a file, using a path relative to Cargo.toml
-                            let file = BufReader::new(File::open(dir).unwrap());
-                            // Decode that sound file into a source
-                            let source = Decoder::new(file).unwrap();
-                            // Play the sound directly on the device
-                            let _ = stream_handle.play_raw(source.convert_samples());
+                            let (_stream, handle) =
+                                rodio_wav_fix::OutputStream::try_default().unwrap();
+                            let sink = rodio_wav_fix::Sink::try_new(&handle).unwrap();
+
+                            let file = std::fs::File::open(dir).unwrap();
+                            sink.append(rodio_wav_fix::Decoder::new(BufReader::new(file)).unwrap());
+
+                            sink.sleep_until_end();
                         }
                     }
                     _ => {}
