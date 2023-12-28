@@ -2,7 +2,7 @@ use evdev::Key;
 use evdev_rs::enums::EV_MSC;
 use evdev_rs::Device;
 use evdev_rs::ReadFlag;
-use rodio::{source::Source, Decoder, OutputStream};
+use rodio_wav_fix::{source::Source, Decoder, OutputStream};
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;

@@ -10,4 +10,5 @@ evdev = "*"
 evdev-rs = "*"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-rodio = "*"
+# rodio = "*"
+rodio_wav_fix = "0.15.0"
