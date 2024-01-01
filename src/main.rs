@@ -29,6 +29,8 @@ fn main() {
     let conf = read_user_from_file("config.json").unwrap();
     let mut key_pressed: i32 = 0;
     let mut key_file: String = "".to_owned();
+    let (_stream, handle) = rodio_wav_fix::OutputStream::try_default().unwrap();
+    let sink = rodio_wav_fix::Sink::try_new(&handle).unwrap();
     loop {
         let ev = d.next_event(ReadFlag::NORMAL).map(|val| val.1);
         match ev {
@@ -69,13 +71,8 @@ fn main() {
                             println!("key {} pressed {} ", key_pressed, key_file);
                             let dir = String::from("nk-cream/") + &key_file;
                             // let x = Command::new("aplay").arg(dir).output();
-                            let (_stream, handle) =
-                                rodio_wav_fix::OutputStream::try_default().unwrap();
-                            let sink = rodio_wav_fix::Sink::try_new(&handle).unwrap();
-
                             let file = std::fs::File::open(dir).unwrap();
                             sink.append(rodio_wav_fix::Decoder::new(BufReader::new(file)).unwrap());
-
                             sink.sleep_until_end();
                         }
                     }
