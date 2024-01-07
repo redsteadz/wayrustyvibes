@@ -1,5 +1,6 @@
 mod play_sound;
 
+use crate::play_sound::sound;
 use evdev_rs::Device;
 use evdev_rs::ReadFlag;
 use serde_json::Value;
@@ -7,8 +8,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-
-use crate::play_sound::sound;
+use std::thread;
 
 fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Value, Box<dyn Error>> {
     // Open the file in read-only mode with buffer.
@@ -23,7 +23,7 @@ fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Value, Box<dyn Error>>
 }
 
 fn main() {
-    let d = Device::new_from_path("/dev/input/event4").unwrap();
+    let d = Device::new_from_path("/dev/input/event9").unwrap();
     let conf = read_user_from_file("config.json").unwrap();
     let mut key_pressed: i32 = 0;
     let mut key_file: String = "".to_owned();
@@ -54,7 +54,10 @@ fn main() {
                     _ => {}
                 }
             }
-            Err(_e) => (),
+            Err(_e) => {
+                thread::sleep(std::time::Duration::from_millis(50));
+                // println!("error {}", _e);
+            }
         }
     }
 }
