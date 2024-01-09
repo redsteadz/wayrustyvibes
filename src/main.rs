@@ -1,6 +1,9 @@
+mod keycode;
 mod play_sound;
 
+// use crate::keycode::code_from_key;
 use crate::play_sound::sound;
+use evdev_rs::util::event_code_to_int;
 use evdev_rs::Device;
 use evdev_rs::ReadFlag;
 use serde_json::Value;
@@ -23,7 +26,7 @@ fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Value, Box<dyn Error>>
 }
 
 fn main() {
-    let d = Device::new_from_path("/dev/input/event9").unwrap();
+    let d = Device::new_from_path("/dev/input/event4").unwrap();
     let conf = read_user_from_file("config.json").unwrap();
     let mut key_pressed: i32 = 0;
     let mut key_file: String = "".to_owned();
@@ -33,20 +36,23 @@ fn main() {
             .map(|val| val.1);
         match ev {
             Ok(ev) => {
+                let key_code = ev.event_code;
+                let key_int = event_code_to_int(&key_code);
+
                 let file = conf
                     .get("defines")
-                    .and_then(|defines| defines.get(ev.value.to_string()))
+                    .and_then(|defines| defines.get(key_int.1.to_string()))
                     .map_or_else(|| Value::String("a.wav".to_owned()), |v| v.clone())
                     .to_string();
+                let key_file = file.trim().trim_matches('"').to_string();
 
                 match ev.event_type().unwrap() {
-                    evdev_rs::enums::EventType::EV_MSC => {
-                        key_pressed = ev.value;
-                        key_file = file.trim().trim_matches('"').to_string();
-                    }
+                    // evdev_rs::enums::EventType::EV_MSC => {
+                    //     key_pressed = ev.value;
+                    // }
                     evdev_rs::enums::EventType::EV_KEY => {
                         if ev.value == 1 {
-                            println!("key {} pressed {} ", key_pressed, key_file);
+                            println!("key {} pressed {} {} ", "bruh", key_int.1, key_code);
                             let dir = String::from("nk-cream/") + &key_file;
                             sound::play_sound(dir, 100);
                         }
