@@ -1,7 +1,5 @@
-mod keycode;
 mod play_sound;
 
-// use crate::keycode::code_from_key;
 use crate::play_sound::sound;
 use evdev_rs::util::event_code_to_int;
 use evdev_rs::Device;
