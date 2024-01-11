@@ -24,10 +24,8 @@ fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Value, Box<dyn Error>>
 }
 
 fn main() {
-    let d = Device::new_from_path("/dev/input/event4").unwrap();
+    let d = Device::new_from_path("/dev/input/event9").unwrap();
     let conf = read_user_from_file("config.json").unwrap();
-    let mut key_pressed: i32 = 0;
-    let mut key_file: String = "".to_owned();
     loop {
         let ev = d
             .next_event(ReadFlag::NORMAL | ReadFlag::BLOCKING)
@@ -50,7 +48,6 @@ fn main() {
                     // }
                     evdev_rs::enums::EventType::EV_KEY => {
                         if ev.value == 1 {
-                            println!("key {} pressed {} {} ", "bruh", key_int.1, key_code);
                             let dir = String::from("nk-cream/") + &key_file;
                             sound::play_sound(dir, 100);
                         }
