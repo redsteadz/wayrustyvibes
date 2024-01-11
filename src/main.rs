@@ -24,10 +24,11 @@ fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Value, Box<dyn Error>>
 }
 
 fn main() {
-    let event: Vec<String> = std::env::args().collect();
-    let dp = String::from("/dev/input/") + &event[1];
-    let d = Device::new_from_path(dp).unwrap();
-    let conf = read_user_from_file("config.json").unwrap();
+    let args: Vec<String> = std::env::args().collect();
+    let devicepath = String::from("/dev/input/") + &args[1];
+    let sound_path = args[2].clone() + &String::from("/") + &String::from("config.json");
+    let d = Device::new_from_path(devicepath).unwrap();
+    let conf = read_user_from_file(sound_path).unwrap();
     loop {
         let ev = d
             .next_event(ReadFlag::NORMAL | ReadFlag::BLOCKING)
@@ -47,7 +48,7 @@ fn main() {
                 match ev.event_type().unwrap() {
                     evdev_rs::enums::EventType::EV_KEY => {
                         if ev.value == 1 {
-                            let dir = String::from("nk-cream/") + &key_file;
+                            let dir = args[2].clone() + &String::from("/") + &key_file;
                             sound::play_sound(dir, 100);
                         }
                     }
