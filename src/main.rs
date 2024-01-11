@@ -24,7 +24,9 @@ fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Value, Box<dyn Error>>
 }
 
 fn main() {
-    let d = Device::new_from_path("/dev/input/event9").unwrap();
+    let event: Vec<String> = std::env::args().collect();
+    let dp = String::from("/dev/input/") + &event[1];
+    let d = Device::new_from_path(dp).unwrap();
     let conf = read_user_from_file("config.json").unwrap();
     loop {
         let ev = d
@@ -43,9 +45,6 @@ fn main() {
                 let key_file = file.trim().trim_matches('"').to_string();
 
                 match ev.event_type().unwrap() {
-                    // evdev_rs::enums::EventType::EV_MSC => {
-                    //     key_pressed = ev.value;
-                    // }
                     evdev_rs::enums::EventType::EV_KEY => {
                         if ev.value == 1 {
                             let dir = String::from("nk-cream/") + &key_file;
@@ -57,7 +56,6 @@ fn main() {
             }
             Err(_e) => {
                 thread::sleep(std::time::Duration::from_millis(50));
-                // println!("error {}", _e);
             }
         }
     }
