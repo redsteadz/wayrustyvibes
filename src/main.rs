@@ -59,8 +59,6 @@ fn main() {
                             .to_string();
                         let key_file = file.trim().trim_matches('"').to_string();
 
-                        println!("key file is {}", file);
-
                         let dir = args[2].clone() + &String::from("/") + &key_file;
                         sound::play_sound(dir, 100);
                     }
